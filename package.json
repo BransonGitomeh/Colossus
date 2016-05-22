@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "graphql": "^0.6.0",
     "koa": "^1.2.0",
     "seneca": "^2.1.0"
   }
