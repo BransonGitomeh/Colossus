@@ -1,125 +1,49 @@
-var koa = require('koa');
-var app = module.exports = koa();
+const koa = require('koa');
+const co = require('co');
+const app = module.exports = koa();
+var router = require('koa-router')();
+
+//allow bodies in posts
+const body = require('koa-better-body')
+	//allow routes
+app.use(body()).use(router.routes()).use(router.allowedMethods());
+
+var schema = require("./GraphQl/schema")
 
 var graphQl = require("graphql")
 
-// console.log(graphQl)
 
-var schema = new graphQl.GraphQLSchema({
-	//a single query
-	query: new graphQl.GraphQLObjectType({
-			name: 'RootQueryType',
-			fields: {
-				name: {
-					type: graphQl.GraphQLString,
-					resolve() {
-						return 'world';
-					}
-				},
+// x-response-time
 
-				//arrange all the types here that have stuff
-				user: {
-					type: new graphQl.GraphQLObjectType({
-						name: 'User',
-						description: 'A user',
-						fields: () => ({
-							_id: {
-								type: new graphQl.GraphQLNonNull(graphQl.GraphQLID)
-							},
-							name: {
-								type: graphQl.GraphQLString
-							},
-							surname: {
-								type: graphQl.GraphQLString
-							},
-							age: {
-								type: graphQl.GraphQLInt
-							},
-							homes: {
-								type: new graphQl.GraphQLList(new graphQl.GraphQLObjectType({
-									name: 'Home',
-									description: 'A profile of a user',
-									fields: () => ({
-										_id: {
-											type: new graphQl.GraphQLNonNull(graphQl.GraphQLID)
-										},
-										location: {
-											type: graphQl.GraphQLString
-										}
-									})
-								}))
-							}
-						})
-					}),
-					args: {
-						id: {
-							type: graphQl.GraphQLID
-						}
-					},
-					resolve() {
-						return {
-							_id: 34,
-							name: "branson",
-							surname: "branson",
-							homes: [{
-								_id: 1,
-								location: "nyeri"
-							}, {
-								_id: 2,
-								location: "ruiru"
-							}]
-						}
-					}
-				},
-
-				//next queryable thing
-				hobby: {
-					type: new graphQl.GraphQLObjectType({
-						name: 'Hobby',
-						description: 'A profile of a user',
-						fields: () => ({
-							_id: {
-								type: new graphQl.GraphQLNonNull(graphQl.GraphQLID)
-							},
-							home: {
-								type: graphQl.GraphQLString
-							}
-						})
-					}),
-					args: {
-						id: {
-							type: graphQl.GraphQLID
-						}
-					},
-					resolve() {
-						return {
-							home: "nyeri",
-						}
-					}
-				}
-			}
-		})
-		//other queries come after here
+app.use(function*(next) {
+	var start = new Date;
+	yield next;
+	var ms = new Date - start;
+	this.set('X-Response-Time', ms + 'ms');
 });
 
-// console.log(schema)
+// logger
 
-var query = '{ user { name, homes { location } } }';
-
-graphQl.graphql(schema, query).then(result => {
-
-	// Prints
-	// {
-	//   data: { hello: "world" }
-	// }
-	console.log("Query: " + query)
-	console.log("Results: " + JSON.stringify(result.data));
+app.use(function*(next) {
+	var start = new Date;
+	yield next;
+	var ms = new Date - start;
+	console.log('%s %s - %s', this.method, this.url, ms);
 });
 
-app.use(function*() {
+// response routes
+
+router.get("/", function*(next) {
 	this.body = 'Hello World';
-});
+})
 
-if (!module.parent) app.listen(3000, function() {
-	console.log("listen @ 3000")
+router.post("/Graph", function*(next) {
+	var results = yield Promise.resolve(graphQl.graphql(schema, this.body.query))
+	console.log(results)
+	this.body = results;
+})
+
+const port = 3002;
+if (!module.parent) app.listen(port, function() {
+	console.log("listen @ " + port)
 });

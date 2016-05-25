@@ -4,13 +4,24 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "workers": "nodemon workers/_blogs.js & nodemon workers/_users.js & nodemon workers/_comments.js",
+    "clients": "nodemon genesis"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "co": "^4.6.0",
     "graphql": "^0.6.0",
     "koa": "^1.2.0",
+    "koa-better-body": "^2.0.1",
+    "koa-router": "^5.4.0",
+    "mongodb": "^2.1.19",
     "seneca": "^2.1.0"
+  },
+  "devDependencies": {
+    "code": "^3.0.0",
+    "lab": "^10.6.1",
+    "request": "^2.72.0"
   }
 }
