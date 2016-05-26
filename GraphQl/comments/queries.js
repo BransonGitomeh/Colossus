@@ -39,7 +39,7 @@ module.exports = {
 					role: 'comments',
 					cmd: 'all'
 				}, function(err, result) {
-					resolve(result)
+					resolve(result.records)
 				})
 			})
 		}

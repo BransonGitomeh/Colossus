@@ -20,7 +20,7 @@ const mutationArgs = {
 	_id: {
 		type: graphQl.GraphQLID
 	},
-	blog_id: {
+	title: {
 		name: 'title',
 		type: graphQl.GraphQLString
 	},
@@ -41,7 +41,7 @@ var mutations = {}
 mutationList.map(function(newMution) {
 	mutations[newMution] = {
 		args: mutationArgs,
-		type: new graphQl.GraphQLList(commentType),
+		type: commentType,
 		resolve: function(root, args) {
 			return new Promise((resolve, reject) => {
 				client.act({
@@ -49,7 +49,7 @@ mutationList.map(function(newMution) {
 					cmd: newMution,
 					args: args
 				}, function(err, result) {
-					resolve(result)
+					resolve(result.records)
 				})
 			})
 		}

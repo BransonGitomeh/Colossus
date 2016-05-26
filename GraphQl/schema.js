@@ -8,7 +8,7 @@ module.exports = new graphQl.GraphQLSchema({
 			blog: require("./blogs/queries").blog,
 			blogs: require("./blogs/queries").blogs,
 
-			//blogs
+			//comments
 			comment: require("./comments/queries").comment,
 			comments: require("./comments/queries").comments,
 
